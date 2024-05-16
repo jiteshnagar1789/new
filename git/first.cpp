@@ -2,5 +2,6 @@
 
 int main()
 {
-    std::cout<<"jitesh" ;
+    std::cout<<"jitesh"<<std::endl ;
+    std::cout<<"rakesh" ;
 }
