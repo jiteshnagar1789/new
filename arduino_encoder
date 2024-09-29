@@ -1,0 +1,57 @@
+/*
+ * rosserial Publisher Example
+ * Prints "hello world!"
+ */
+//#
+#include <ros.h>
+#include <geometry_msgs/Twist.h>
+#include <std_msgs/UInt8.h>
+
+#define EN1 5
+#define A1 6
+#define B1 7 
+#define EN2 9
+#define A2 10
+#define B2 11
+
+
+ros::NodeHandle  nh;
+
+void velocity_call_back(const geometry_msgs::Twist& toggle_msg)
+{
+  digitalWrite (6,HIGH) ;
+  analogWrite(5,25*toggle_msg.linear.x) ;
+  digitalWrite(7 , LOW) ;
+
+  digitalWrite (10,HIGH) ;
+  analogWrite(9,25*toggle_msg.linear.x) ;
+  digitalWrite(11 , LOW) ;
+
+}
+
+std_msgs::UInt8 int_msg1 ;
+std_msgs::UInt8 int_msg2 ;
+ros::Subscriber<geometry_msgs::Twist> velocity("cmd_vel",velocity_call_back);
+ros::Publisher encoder1("encd_1" , &int_msg1  ) ;
+ros::Publisher encoder2("encd_2" , &int_msg2  ) ;
+
+void setup()
+{
+  nh.initNode();
+  Serial.begin(57600) ;
+  nh.subscribe(velocity) ;
+  nh.advertise(encoder1) ;
+  nh.advertise(encoder2) ;
+  pinMode(9,INPUT) ;
+  pinMode(10,INPUT) ;
+}
+
+void loop()
+{
+  int_msg1.data = digitalRead(9) ;
+  int_msg2.data = digitalRead(10) ;
+  encoder1.publish(&int_msg1) ;
+  encoder2.publish(&int_msg2) ;
+  nh.spinOnce() ;
+  delay(50) ;
+}
